@@ -162,7 +162,7 @@ func main() {
 			AvailabilityZone: moduleArgs.AvailabilityZone,
 			UserData:         []byte(moduleArgs.UserData),
 		}
-		server, err := osm_os.CreateServer(provider, ServerAgrs)
+		server, err := osm_os.CreateServer(provider, ServerAgrs, moduleArgs.Cloud)
 		if err != nil {
 			response.Msg = "Failed create instance: " + err.Error()
 			ansible.FailJson(response)
@@ -181,7 +181,7 @@ func main() {
 		AvailabilityZone: moduleArgs.AvailabilityZone,
 		UserData:         []byte(moduleArgs.UserData),
 	}
-	server, err := osm_os.CreateServer(provider, ServerAgrs)
+	server, err := osm_os.CreateServer(provider, ServerAgrs, moduleArgs.Cloud)
 	if err != nil {
 		response.Msg = "Failed create instance: " + err.Error()
 		ansible.FailJson(response)

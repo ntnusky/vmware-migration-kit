@@ -94,7 +94,7 @@ func main() {
 		response.Msg = "Failed to authenticate Openstack client: " + err.Error()
 		FailJson(response)
 	}
-	flavor, err := osm_os.GetFlavorInfo(provider, moduleArgs.FlavorName)
+	flavor, err := osm_os.GetFlavorInfo(provider, moduleArgs.FlavorName, moduleArgs.Cloud)
 	if err != nil {
 		response.Msg = "Failed to get flavor info for: " + moduleArgs.FlavorName + " error: " + err.Error()
 		FailJson(response)

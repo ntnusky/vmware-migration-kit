@@ -94,7 +94,7 @@ func main() {
 		FailJson(response)
 	}
 
-	err = osm_os.DeleteServer(provider, moduleArgs.Name)
+	err = osm_os.DeleteServer(provider, moduleArgs.Name, moduleArgs.Cloud)
 	if err != nil {
 		response.Msg = "Failed to delete server: " + err.Error()
 		FailJson(response)

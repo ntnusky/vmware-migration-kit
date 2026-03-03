@@ -94,7 +94,7 @@ func main() {
 		response.Msg = "Failed to authenticate Openstack client: " + err.Error()
 		FailJson(response)
 	}
-	converted, err := osm_os.IsVolumeConverted(provider, moduleArgs.VolumeID)
+	converted, err := osm_os.IsVolumeConverted(provider, moduleArgs.VolumeID, moduleArgs.DstCloud)
 	if err != nil {
 		response.Msg = "Failed to get volume metadata: " + moduleArgs.VolumeID + " error: " + err.Error()
 		FailJson(response)

@@ -93,38 +93,38 @@ type MigrationConfig struct {
 // Datastore name to Volume type mapping
 type VolumeTypeMapping struct {
 	DatastoreName string `json:"vmware_datastore"`
-	VolumeType string `json:"openstack_type"`
+	VolumeType    string `json:"openstack_type"`
 }
 
 // Ansible
 type ModuleArgs struct {
-	DstCloud       osm_os.DstCloud `json:"dst_cloud"`
-	User           string
-	Password       string
-	Server         string
-	Libdir         string
-	VmName         string
-	VolumeAz       string
-	VolumeType     string
+	DstCloud          osm_os.DstCloud `json:"dst_cloud"`
+	User              string
+	Password          string
+	Server            string
+	Libdir            string
+	VmName            string
+	VolumeAz          string
+	VolumeType        string
 	VolumeTypeMapping []VolumeTypeMapping `json:"volume_type_mapping"`
-	AssumeZero     bool
-	VddkPath       string
-	OSMDataDir     string
-	CBTSync        bool
-	CutOver        bool
-	SkipConversion bool
-	ConvHostName   string
-	Compression    string
-	RunScript      string
-	UseSocks       bool
-	InstanceUUID   string
-	Debug          bool
-	LocalDiskPath  string
-	ExternalVolume bool
-	VolumeName     string
-	HostPool       string
-	BootScript     string
-	ExtraOpts      string
+	AssumeZero        bool
+	VddkPath          string
+	OSMDataDir        string
+	CBTSync           bool
+	CutOver           bool
+	SkipConversion    bool
+	ConvHostName      string
+	Compression       string
+	RunScript         string
+	UseSocks          bool
+	InstanceUUID      string
+	Debug             bool
+	LocalDiskPath     string
+	ExternalVolume    bool
+	VolumeName        string
+	HostPool          string
+	BootScript        string
+	ExtraOpts         string
 }
 
 func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (string, error) {
@@ -144,13 +144,13 @@ func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (s
 		return "", err
 	}
 	diskNameStr := strconv.Itoa(int(c.NbdkitConfig.VddkConfig.DiskKey))
-	volume, err := osm_os.GetVolumeID(c.OSClient, vmName, diskNameStr)
+	volume, err := osm_os.GetVolumeID(c.OSClient, vmName, diskNameStr, c.CloudOpts)
 	if err != nil {
 		logger.Log.Infof("Failed to get volume: %v", err)
 		return "", err
 	}
 	if volume != nil {
-		converted, err := osm_os.IsVolumeConverted(c.OSClient, volume.ID)
+		converted, err := osm_os.IsVolumeConverted(c.OSClient, volume.ID, c.CloudOpts)
 		if err != nil {
 			logger.Log.Infof("Failed to get volume metadata: %v", err)
 			return "", err
@@ -241,9 +241,10 @@ func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (s
 			logger.Log.Infof("UEFI firmware detected")
 			uefi = true
 		}
+
 		if c.ManageExtVol {
 			logger.Log.Infof("Managing existing external volume: %s on host: %s", c.CinderManageConfig.VolumeName, c.CinderManageConfig.HostPool)
-			volume, err = osm_os.CinderManage(c.OSClient, c.CinderManageConfig.VolumeName, c.CinderManageConfig.HostPool)
+			volume, err = osm_os.CinderManage(c.OSClient, c.CinderManageConfig.VolumeName, c.CinderManageConfig.HostPool, c.CloudOpts)
 			if err != nil {
 				logger.Log.Infof("Failed to manage existing external volume: %v", err)
 				return "", err
@@ -252,7 +253,7 @@ func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (s
 		} else {
 			logger.Log.Infof("Creating new volume..")
 			// Create volume
-			volume, err = osm_os.CreateVolume(c.OSClient, volOpts, uefi)
+			volume, err = osm_os.CreateVolume(c.OSClient, volOpts, uefi, c.CloudOpts)
 			if err != nil {
 				logger.Log.Infof("Failed to create volume: %v", err)
 				return "", err
@@ -273,7 +274,8 @@ func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (s
 			return "", err
 		}
 	}
-	err = osm_os.AttachVolume(c.OSClient, volume.ID, c.ConvHostName, instanceUUID)
+
+	err = osm_os.AttachVolume(c.OSClient, volume.ID, c.ConvHostName, instanceUUID, c.CloudOpts)
 	if err != nil {
 		logger.Log.Infof("Failed to attach volume: %v", err)
 		return "", err
@@ -322,7 +324,7 @@ func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (s
 
 			if syncVol {
 				// Check change id
-				osChangeID, err := osm_os.GetOSChangeID(c.OSClient, volume.ID)
+				osChangeID, err := osm_os.GetOSChangeID(c.OSClient, volume.ID, c.CloudOpts)
 				if err != nil {
 					logger.Log.Infof("Failed to get OS change ID: %v", err)
 					return "", err
@@ -376,7 +378,7 @@ func (c *MigrationConfig) VMMigration(parentCtx context.Context, runV2V bool) (s
 					"osm":       "true",
 					"converted": "true",
 				}
-				err = osm_os.UpdateVolumeMetadata(c.OSClient, volume.ID, volMetadata)
+				err = osm_os.UpdateVolumeMetadata(c.OSClient, volume.ID, volMetadata, c.CloudOpts)
 				if err != nil {
 					logger.Log.Infof("Failed to set volume metadata: %v, ignoring ...", err)
 				}

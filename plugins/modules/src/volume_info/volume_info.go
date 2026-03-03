@@ -104,7 +104,7 @@ func main() {
 		FailJson(response)
 	}
 
-	sharedVolumeInfo, err := osm_os.GetVolumeInfo(provider, moduleArgs.Name)
+	sharedVolumeInfo, err := osm_os.GetVolumeInfo(provider, moduleArgs.Name, moduleArgs.Cloud)
 	if err != nil {
 		response.Msg = "Failed to get volume info for: " + moduleArgs.Name + " error: " + err.Error()
 		FailJson(response)

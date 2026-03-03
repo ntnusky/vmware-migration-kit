@@ -111,9 +111,15 @@ func OpenstackAuth(ctx context.Context, moduleOpts DstCloud) (*gophercloud.Provi
 	return provider, nil
 }
 
-func CreateVolume(provider *gophercloud.ProviderClient, opts VolOpts, setUEFI bool) (*volumes.Volume, error) {
+func CreateVolume(provider *gophercloud.ProviderClient, opts VolOpts, setUEFI bool, cloudOpts DstCloud) (*volumes.Volume, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
@@ -202,8 +208,16 @@ func WaitForServerStatus(client *gophercloud.ServiceClient, serverID, status str
 	return fmt.Errorf("server %s did not reach status %s within the timeout", serverID, status)
 }
 
-func UpdateVolumeMetadata(client *gophercloud.ProviderClient, volumeID string, metadata map[string]string) error {
-	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{})
+func UpdateVolumeMetadata(client *gophercloud.ProviderClient, volumeID string, metadata map[string]string, cloudOpts DstCloud) error {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
+	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{
+		Region: regionName,
+	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
 		return err
@@ -219,8 +233,16 @@ func UpdateVolumeMetadata(client *gophercloud.ProviderClient, volumeID string, m
 	return nil
 }
 
-func IsVolumeConverted(client *gophercloud.ProviderClient, volumeID string) (bool, error) {
-	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{})
+func IsVolumeConverted(client *gophercloud.ProviderClient, volumeID string, cloudOpts DstCloud) (bool, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
+	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{
+		Region: regionName,
+	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
 		return false, err
@@ -241,8 +263,16 @@ func IsVolumeConverted(client *gophercloud.ProviderClient, volumeID string) (boo
 	return false, nil
 }
 
-func GetOSChangeID(client *gophercloud.ProviderClient, volumeID string) (string, error) {
-	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{})
+func GetOSChangeID(client *gophercloud.ProviderClient, volumeID string, cloudOpts DstCloud) (string, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
+	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{
+		Region: regionName,
+	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
 		return "", err
@@ -258,8 +288,16 @@ func GetOSChangeID(client *gophercloud.ProviderClient, volumeID string) (string,
 	return "", nil
 }
 
-func GetVolumeID(client *gophercloud.ProviderClient, vm string, disk string) (*volumes.Volume, error) {
-	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{})
+func GetVolumeID(client *gophercloud.ProviderClient, vm string, disk string, cloudOpts DstCloud) (*volumes.Volume, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
+	blockStorageClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{
+		Region: regionName,
+	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
 		return nil, err
@@ -332,8 +370,16 @@ func GetInstanceUUID() (string, error) {
 	return metaData.UUID, nil
 }
 
-func AttachVolume(client *gophercloud.ProviderClient, volumeID string, instanceName string, instanceUUID string) error {
-	computeClient, err := openstack.NewComputeV2(client, gophercloud.EndpointOpts{})
+func AttachVolume(client *gophercloud.ProviderClient, volumeID string, instanceName string, instanceUUID string, cloudOpts DstCloud) error {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
+	computeClient, err := openstack.NewComputeV2(client, gophercloud.EndpointOpts{
+		Region: regionName,
+	})
 	logger.Log.Infof("Volume ID: %s", volumeID)
 	if err != nil {
 		logger.Log.Infof("Failed to create compute client: %v", err)
@@ -368,7 +414,7 @@ func AttachVolume(client *gophercloud.ProviderClient, volumeID string, instanceN
 		return err
 	}
 	volumeClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
@@ -383,7 +429,15 @@ func AttachVolume(client *gophercloud.ProviderClient, volumeID string, instanceN
 }
 
 func DetachVolume(client *gophercloud.ProviderClient, volumeID, instanceName, instanceUUID string, cloudOpts DstCloud) error {
-	computeClient, err := openstack.NewComputeV2(client, gophercloud.EndpointOpts{})
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
+	computeClient, err := openstack.NewComputeV2(client, gophercloud.EndpointOpts{
+		Region: regionName,
+	})
 	if err != nil {
 		logger.Log.Infof("Failed to create compute client: %v", err)
 		return err
@@ -417,7 +471,9 @@ func DetachVolume(client *gophercloud.ProviderClient, volumeID, instanceName, in
 			logger.Log.Infof("Re Authentication failed: %v", err)
 			return err
 		}
-		computeClient, err = openstack.NewComputeV2(providerCli, gophercloud.EndpointOpts{})
+		computeClient, err = openstack.NewComputeV2(providerCli, gophercloud.EndpointOpts{
+			Region: regionName,
+		})
 		if err != nil {
 			logger.Log.Infof("Failed to create compute client: %v", err)
 			return err
@@ -429,7 +485,7 @@ func DetachVolume(client *gophercloud.ProviderClient, volumeID, instanceName, in
 		}
 	}
 	volumeClient, err := openstack.NewBlockStorageV3(client, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
@@ -444,9 +500,15 @@ func DetachVolume(client *gophercloud.ProviderClient, volumeID, instanceName, in
 	return nil
 }
 
-func CreateServer(provider *gophercloud.ProviderClient, args ServerArgs) (string, error) {
+func CreateServer(provider *gophercloud.ProviderClient, args ServerArgs, cloudOpts DstCloud) (string, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to create compute client: %v", err)
@@ -508,9 +570,15 @@ func CreateServer(provider *gophercloud.ProviderClient, args ServerArgs) (string
 	return server.ID, nil
 }
 
-func GetFlavorInfo(provider *gophercloud.ProviderClient, flavorNameOrID string) (*flavors.Flavor, error) {
+func GetFlavorInfo(provider *gophercloud.ProviderClient, flavorNameOrID string, cloudOpts DstCloud) (*flavors.Flavor, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create compute client: %v", err)
@@ -549,9 +617,15 @@ func GetFlavorInfo(provider *gophercloud.ProviderClient, flavorNameOrID string) 
 }
 
 // DeleteServer deletes a server by ID
-func DeleteServer(provider *gophercloud.ProviderClient, serverID string) error {
+func DeleteServer(provider *gophercloud.ProviderClient, serverID string, cloudOpts DstCloud) error {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create compute client: %v", err)
@@ -568,9 +642,15 @@ func DeleteServer(provider *gophercloud.ProviderClient, serverID string) error {
 }
 
 // DeleteVolume deletes a volume by ID
-func DeleteVolume(provider *gophercloud.ProviderClient, volumeID string) error {
+func DeleteVolume(provider *gophercloud.ProviderClient, volumeID string, cloudOpts DstCloud) error {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
@@ -620,9 +700,15 @@ func DeleteVolume(provider *gophercloud.ProviderClient, volumeID string) error {
 }
 
 // DeleteFlavor deletes a flavor by ID
-func DeleteFlavor(provider *gophercloud.ProviderClient, flavorID string) error {
+func DeleteFlavor(provider *gophercloud.ProviderClient, flavorID string, cloudOpts DstCloud) error {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create compute client: %v", err)
@@ -649,9 +735,15 @@ type VolumeInfo struct {
 }
 
 // GetVolumeInfo retrieves volume information by name
-func GetVolumeInfo(provider *gophercloud.ProviderClient, volumeName string) (*VolumeInfo, error) {
+func GetVolumeInfo(provider *gophercloud.ProviderClient, volumeName string, cloudOpts DstCloud) (*VolumeInfo, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
@@ -695,9 +787,15 @@ func GetVolumeInfo(provider *gophercloud.ProviderClient, volumeName string) (*Vo
 	return volumeInfo, nil
 }
 
-func CinderManage(provider *gophercloud.ProviderClient, volumeName string, hostPool string) (*volumes.Volume, error) {
+func CinderManage(provider *gophercloud.ProviderClient, volumeName string, hostPool string, cloudOpts DstCloud) (*volumes.Volume, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	bsClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
@@ -724,7 +822,7 @@ func CinderManage(provider *gophercloud.ProviderClient, volumeName string, hostP
 		logger.Log.Infof("Error while managing existing volume: %v", err)
 		return nil, err
 	}
-	volume, err := GetVolume(provider, resp.Volume.ID)
+	volume, err := GetVolume(provider, resp.Volume.ID, cloudOpts)
 	if err != nil {
 		logger.Log.Infof("Failed to get managed volume: %v", err)
 		return nil, err
@@ -737,9 +835,15 @@ func CinderManage(provider *gophercloud.ProviderClient, volumeName string, hostP
 	return volume, nil
 }
 
-func GetVolume(provider *gophercloud.ProviderClient, volumeID string) (*volumes.Volume, error) {
+func GetVolume(provider *gophercloud.ProviderClient, volumeID string, cloudOpts DstCloud) (*volumes.Volume, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	bsClient, err := openstack.NewBlockStorageV3(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create block storage client: %v", err)
