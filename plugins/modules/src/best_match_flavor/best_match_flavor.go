@@ -39,11 +39,10 @@ type ModuleArgs struct {
 }
 
 type GuestInfo struct {
-	HwProcessorCount int `json:"hw_processor_count"`
-	HwMemtotalMb     int `json:"hw_memtotal_mb"`
+	HwProcessorCount int    `json:"hw_processor_count"`
+	HwMemtotalMb     int    `json:"hw_memtotal_mb"`
 	HwFolder         string `json:"hw_folder,omitempty"`
 }
-
 
 type Disk struct {
 	Capacity int `json:"capacity"`
@@ -129,9 +128,15 @@ func loadJSONFile(filePath string, target interface{}) error {
 	return nil
 }
 
-func findBestMatchingFlavor(provider *gophercloud.ProviderClient, guestInfo *GuestInfo, diskCapacityMb int) (*flavors.Flavor, error) {
+func findBestMatchingFlavor(provider *gophercloud.ProviderClient, guestInfo *GuestInfo, diskCapacityMb int, cloudOpts osm_os.DstCloud) (*flavors.Flavor, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewComputeV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create compute client: %v", err)
@@ -217,7 +222,7 @@ func main() {
 	diskCapacityMb := getTotalDiskCapacity(&diskInfo)
 
 	// Find best matching flavor
-	bestFlavor, err := findBestMatchingFlavor(provider, &guestInfo, diskCapacityMb)
+	bestFlavor, err := findBestMatchingFlavor(provider, &guestInfo, diskCapacityMb, moduleArgs.Cloud)
 	if err != nil {
 		response.Msg = "Failed to find best matching flavor: " + err.Error()
 		FailJson(response)
