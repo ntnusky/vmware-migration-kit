@@ -94,7 +94,7 @@ func main() {
 		FailJson(response)
 	}
 
-	err = osm_os.DeletePort(provider, moduleArgs.PortID)
+	err = osm_os.DeletePort(provider, moduleArgs.PortID, moduleArgs.Cloud)
 	if err != nil {
 		response.Msg = "Failed to delete port: " + err.Error()
 		FailJson(response)

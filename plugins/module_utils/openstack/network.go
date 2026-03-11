@@ -31,9 +31,15 @@ import (
 )
 
 // GetNetwork retrieves a network by name or ID
-func GetNetwork(provider *gophercloud.ProviderClient, networkNameOrID string) (*networks.Network, error) {
+func GetNetwork(provider *gophercloud.ProviderClient, networkNameOrID string, cloudOpts DstCloud) (*networks.Network, error) {
+
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create network client: %v", err)
@@ -73,9 +79,14 @@ func GetNetwork(provider *gophercloud.ProviderClient, networkNameOrID string) (*
 	return &networkList[0], nil
 }
 
-func GetSubnetIDFromNetwork(provider *gophercloud.ProviderClient, networkID string) ([]string, error) {
+func GetSubnetIDFromNetwork(provider *gophercloud.ProviderClient, networkID string, cloudOpts DstCloud) ([]string, error) {
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create network client: %v", err)
@@ -97,9 +108,14 @@ func GetSubnetIDFromNetwork(provider *gophercloud.ProviderClient, networkID stri
 }
 
 // CreatePort creates a network port with the specified parameters
-func CreatePort(provider *gophercloud.ProviderClient, portName, networkID, macAddress, subnet string, securityGroups, fixedIPs []string) (*ports.Port, error) {
+func CreatePort(provider *gophercloud.ProviderClient, portName, networkID, macAddress, subnet string, securityGroups, fixedIPs []string, cloudOpts DstCloud) (*ports.Port, error) {
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
 	if err != nil {
 		logger.Log.Infof("Failed to create network client: %v", err)
@@ -156,10 +172,16 @@ func WaitForPortStatus(client *gophercloud.ServiceClient, portID, status string,
 }
 
 // DeletePort deletes a network port by ID
-func DeletePort(provider *gophercloud.ProviderClient, portID string) error {
+func DeletePort(provider *gophercloud.ProviderClient, portID string, cloudOpts DstCloud) error {
+	regionName := os.Getenv("OS_REGION_NAME")
+	if regionName == "" {
+		regionName = cloudOpts.RegionName
+	}
+
 	client, err := openstack.NewNetworkV2(provider, gophercloud.EndpointOpts{
-		Region: os.Getenv("OS_REGION_NAME"),
+		Region: regionName,
 	})
+
 	if err != nil {
 		logger.Log.Infof("Failed to create network client: %v", err)
 		return err

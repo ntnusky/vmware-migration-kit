@@ -157,7 +157,7 @@ func main() {
 
 	for nicIndex, nic := range vmNics {
 		// Get network ID
-		network, err := osm_os.GetNetwork(provider, nic.Vlan)
+		network, err := osm_os.GetNetwork(provider, nic.Vlan, moduleArgs.Cloud)
 		if err != nil {
 			response.Msg = "Failed to get network: " + err.Error()
 			FailJson(response)
@@ -168,7 +168,7 @@ func main() {
 		// If using fixed IPs, get subnet ID if not provided
 		if moduleArgs.UseFixedIPs {
 			if nic.Subnet == "" {
-				subnets, err := osm_os.GetSubnetIDFromNetwork(provider, network.ID)
+				subnets, err := osm_os.GetSubnetIDFromNetwork(provider, network.ID, moduleArgs.Cloud)
 				if err != nil {
 					response.Msg = "Failed to get subnet from network: " + err.Error()
 					FailJson(response)
@@ -183,7 +183,7 @@ func main() {
 		}
 		portName := fmt.Sprintf("%s-NIC-%d-VLAN-%s", moduleArgs.VmName, nicIndex, nic.Vlan)
 		port, err := osm_os.CreatePort(provider, portName, network.ID, nic.Mac, nic.Subnet,
-			moduleArgs.SecurityGroups, nic.FixedIPs)
+			moduleArgs.SecurityGroups, nic.FixedIPs, moduleArgs.Cloud)
 		if err != nil {
 			response.Msg = "Failed to create port: " + err.Error()
 			FailJson(response)
