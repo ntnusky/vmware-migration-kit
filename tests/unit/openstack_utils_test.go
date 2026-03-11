@@ -71,8 +71,9 @@ func TestGetVolumeSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	volume, err := osm_os.GetVolume(createMockProvider(), "vol-123")
+	volume, err := osm_os.GetVolume(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("GetVolume returned error: %v", err)
 	}
@@ -90,8 +91,9 @@ func TestGetVolumeNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolume(createMockProvider(), "nonexistent")
+	_, err := osm_os.GetVolume(createMockProvider(), "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -99,8 +101,9 @@ func TestGetVolumeNotFound(t *testing.T) {
 
 // Test 3: GetVolume client init failure
 func TestGetVolumeClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolume(createFailingProvider(), "vol-123")
+	_, err := osm_os.GetVolume(createFailingProvider(), "vol-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -130,8 +133,9 @@ func TestGetVolumeInfoSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	info, err := osm_os.GetVolumeInfo(createMockProvider(), "my-volume")
+	info, err := osm_os.GetVolumeInfo(createMockProvider(), "my-volume", dstCloud)
 	if err != nil {
 		t.Fatalf("GetVolumeInfo returned error: %v", err)
 	}
@@ -151,8 +155,9 @@ func TestGetVolumeInfoNotFound(t *testing.T) {
 		_, _ = w.Write([]byte(`{"volumes": []}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolumeInfo(createMockProvider(), "nonexistent")
+	_, err := osm_os.GetVolumeInfo(createMockProvider(), "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -174,8 +179,9 @@ func TestGetVolumeInfoMultipleFound(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolumeInfo(createMockProvider(), "dup")
+	_, err := osm_os.GetVolumeInfo(createMockProvider(), "dup", dstCloud)
 	if err == nil {
 		t.Fatal("expected error for multiple volumes")
 	}
@@ -204,8 +210,9 @@ func TestGetVolumeIDSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	volume, err := osm_os.GetVolumeID(createMockProvider(), "vm1", "disk0")
+	volume, err := osm_os.GetVolumeID(createMockProvider(), "vm1", "disk0", dstCloud)
 	if err != nil {
 		t.Fatalf("GetVolumeID returned error: %v", err)
 	}
@@ -228,8 +235,9 @@ func TestGetVolumeIDNotFound(t *testing.T) {
 		_, _ = w.Write([]byte(`{"volumes": []}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	volume, err := osm_os.GetVolumeID(createMockProvider(), "nonexistent", "disk")
+	volume, err := osm_os.GetVolumeID(createMockProvider(), "nonexistent", "disk", dstCloud)
 	if err != nil {
 		t.Fatalf("GetVolumeID returned error: %v", err)
 	}
@@ -254,8 +262,9 @@ func TestGetVolumeIDMultipleFound(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolumeID(createMockProvider(), "vm1", "disk0")
+	_, err := osm_os.GetVolumeID(createMockProvider(), "vm1", "disk0", dstCloud)
 	if err == nil {
 		t.Fatal("expected error for multiple volumes")
 	}
@@ -284,8 +293,9 @@ func TestIsVolumeConvertedTrue(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	converted, err := osm_os.IsVolumeConverted(createMockProvider(), "vol-123")
+	converted, err := osm_os.IsVolumeConverted(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("IsVolumeConverted returned error: %v", err)
 	}
@@ -313,8 +323,9 @@ func TestIsVolumeConvertedFalse(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	converted, err := osm_os.IsVolumeConverted(createMockProvider(), "vol-123")
+	converted, err := osm_os.IsVolumeConverted(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("IsVolumeConverted returned error: %v", err)
 	}
@@ -342,8 +353,9 @@ func TestIsVolumeConvertedNoKey(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	converted, err := osm_os.IsVolumeConverted(createMockProvider(), "vol-123")
+	converted, err := osm_os.IsVolumeConverted(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("IsVolumeConverted returned error: %v", err)
 	}
@@ -375,8 +387,9 @@ func TestGetOSChangeIDSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	changeID, err := osm_os.GetOSChangeID(createMockProvider(), "vol-123")
+	changeID, err := osm_os.GetOSChangeID(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("GetOSChangeID returned error: %v", err)
 	}
@@ -404,8 +417,9 @@ func TestGetOSChangeIDNoKey(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	changeID, err := osm_os.GetOSChangeID(createMockProvider(), "vol-123")
+	changeID, err := osm_os.GetOSChangeID(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("GetOSChangeID returned error: %v", err)
 	}
@@ -442,8 +456,9 @@ func TestDeleteVolumeSuccessAvailable(t *testing.T) {
 		}
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteVolume(createMockProvider(), "vol-123")
+	err := osm_os.DeleteVolume(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("DeleteVolume returned error: %v", err)
 	}
@@ -472,8 +487,9 @@ func TestDeleteVolumeSuccessError(t *testing.T) {
 		}
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteVolume(createMockProvider(), "vol-123")
+	err := osm_os.DeleteVolume(createMockProvider(), "vol-123", dstCloud)
 	if err != nil {
 		t.Fatalf("DeleteVolume returned error: %v", err)
 	}
@@ -495,8 +511,9 @@ func TestDeleteServerSuccess(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteServer(createMockProvider(), "srv-123")
+	err := osm_os.DeleteServer(createMockProvider(), "srv-123", dstCloud)
 	if err != nil {
 		t.Fatalf("DeleteServer returned error: %v", err)
 	}
@@ -511,8 +528,9 @@ func TestDeleteServerNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteServer(createMockProvider(), "nonexistent")
+	err := osm_os.DeleteServer(createMockProvider(), "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -534,8 +552,9 @@ func TestDeleteFlavorSuccess(t *testing.T) {
 		w.WriteHeader(http.StatusAccepted)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteFlavor(createMockProvider(), "flv-123")
+	err := osm_os.DeleteFlavor(createMockProvider(), "flv-123", dstCloud)
 	if err != nil {
 		t.Fatalf("DeleteFlavor returned error: %v", err)
 	}
@@ -550,8 +569,9 @@ func TestDeleteFlavorNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteFlavor(createMockProvider(), "nonexistent")
+	err := osm_os.DeleteFlavor(createMockProvider(), "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -580,8 +600,9 @@ func TestGetFlavorInfoByIDSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	flavor, err := osm_os.GetFlavorInfo(createMockProvider(), "flv-123")
+	flavor, err := osm_os.GetFlavorInfo(createMockProvider(), "flv-123", dstCloud)
 	if err != nil {
 		t.Fatalf("GetFlavorInfo returned error: %v", err)
 	}
@@ -618,8 +639,9 @@ func TestGetFlavorInfoByNameSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	flavor, err := osm_os.GetFlavorInfo(createMockProvider(), "m1.large")
+	flavor, err := osm_os.GetFlavorInfo(createMockProvider(), "m1.large", dstCloud)
 	if err != nil {
 		t.Fatalf("GetFlavorInfo returned error: %v", err)
 	}
@@ -643,8 +665,9 @@ func TestGetFlavorInfoNotFound(t *testing.T) {
 		_, _ = w.Write([]byte(`{"flavors": []}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetFlavorInfo(createMockProvider(), "nonexistent")
+	_, err := osm_os.GetFlavorInfo(createMockProvider(), "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -676,9 +699,10 @@ func TestUpdateVolumeMetadataSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 	metadata := map[string]string{"key": "value"}
-	err := osm_os.UpdateVolumeMetadata(createMockProvider(), "vol-123", metadata)
+	err := osm_os.UpdateVolumeMetadata(createMockProvider(), "vol-123", metadata, dstCloud)
 	if err != nil {
 		t.Fatalf("UpdateVolumeMetadata returned error: %v", err)
 	}
@@ -693,9 +717,10 @@ func TestUpdateVolumeMetadataNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 	metadata := map[string]string{"key": "value"}
-	err := osm_os.UpdateVolumeMetadata(createMockProvider(), "nonexistent", metadata)
+	err := osm_os.UpdateVolumeMetadata(createMockProvider(), "nonexistent", metadata, dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -738,6 +763,7 @@ func TestCreateServerSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 	args := osm_os.ServerArgs{
 		Name:       "test-server",
@@ -746,7 +772,7 @@ func TestCreateServerSuccess(t *testing.T) {
 		Nics:       []interface{}{map[string]interface{}{"net-id": "net-123"}},
 	}
 
-	serverID, err := osm_os.CreateServer(createMockProvider(), args)
+	serverID, err := osm_os.CreateServer(createMockProvider(), args, dstCloud)
 	if err != nil {
 		t.Fatalf("CreateServer returned error: %v", err)
 	}
@@ -765,6 +791,7 @@ func TestCreateServerAPIFailure(t *testing.T) {
 		_, _ = w.Write([]byte(`{"error": "invalid request"}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 	args := osm_os.ServerArgs{
 		Name:       "test-server",
@@ -772,7 +799,7 @@ func TestCreateServerAPIFailure(t *testing.T) {
 		BootVolume: "vol-boot",
 	}
 
-	_, err := osm_os.CreateServer(createMockProvider(), args)
+	_, err := osm_os.CreateServer(createMockProvider(), args, dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -816,8 +843,9 @@ func TestCinderManageSuccess(t *testing.T) {
 		 }`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	volume, err := osm_os.CinderManage(createMockProvider(), "existing-volume", "host@backend#pool")
+	volume, err := osm_os.CinderManage(createMockProvider(), "existing-volume", "host@backend#pool", dstCloud)
 	if err != nil {
 		t.Fatalf("CinderManage returned error: %v", err)
 	}
@@ -832,8 +860,9 @@ func TestCinderManageSuccess(t *testing.T) {
 
 // Test 29: IsVolumeConverted client init failure
 func TestIsVolumeConvertedClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.IsVolumeConverted(createFailingProvider(), "vol-123")
+	_, err := osm_os.IsVolumeConverted(createFailingProvider(), "vol-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -841,8 +870,9 @@ func TestIsVolumeConvertedClientInitFailure(t *testing.T) {
 
 // Test 30: GetOSChangeID client init failure
 func TestGetOSChangeIDClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetOSChangeID(createFailingProvider(), "vol-123")
+	_, err := osm_os.GetOSChangeID(createFailingProvider(), "vol-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -850,8 +880,9 @@ func TestGetOSChangeIDClientInitFailure(t *testing.T) {
 
 // Test 31: GetVolumeID client init failure
 func TestGetVolumeIDClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolumeID(createFailingProvider(), "vm", "disk")
+	_, err := osm_os.GetVolumeID(createFailingProvider(), "vm", "disk", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -859,8 +890,9 @@ func TestGetVolumeIDClientInitFailure(t *testing.T) {
 
 // Test 32: DeleteVolume client init failure
 func TestDeleteVolumeClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteVolume(createFailingProvider(), "vol-123")
+	err := osm_os.DeleteVolume(createFailingProvider(), "vol-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -868,8 +900,9 @@ func TestDeleteVolumeClientInitFailure(t *testing.T) {
 
 // Test 33: DeleteServer client init failure
 func TestDeleteServerClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteServer(createFailingProvider(), "srv-123")
+	err := osm_os.DeleteServer(createFailingProvider(), "srv-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -877,8 +910,9 @@ func TestDeleteServerClientInitFailure(t *testing.T) {
 
 // Test 34: DeleteFlavor client init failure
 func TestDeleteFlavorClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.DeleteFlavor(createFailingProvider(), "flv-123")
+	err := osm_os.DeleteFlavor(createFailingProvider(), "flv-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -886,8 +920,9 @@ func TestDeleteFlavorClientInitFailure(t *testing.T) {
 
 // Test 35: GetFlavorInfo client init failure
 func TestGetFlavorInfoClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetFlavorInfo(createFailingProvider(), "flv-123")
+	_, err := osm_os.GetFlavorInfo(createFailingProvider(), "flv-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -895,8 +930,9 @@ func TestGetFlavorInfoClientInitFailure(t *testing.T) {
 
 // Test 36: UpdateVolumeMetadata client init failure
 func TestUpdateVolumeMetadataClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	err := osm_os.UpdateVolumeMetadata(createFailingProvider(), "vol-123", nil)
+	err := osm_os.UpdateVolumeMetadata(createFailingProvider(), "vol-123", nil, dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -904,8 +940,9 @@ func TestUpdateVolumeMetadataClientInitFailure(t *testing.T) {
 
 // Test 37: CreateServer client init failure
 func TestCreateServerClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.CreateServer(createFailingProvider(), osm_os.ServerArgs{})
+	_, err := osm_os.CreateServer(createFailingProvider(), osm_os.ServerArgs{}, dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -913,8 +950,9 @@ func TestCreateServerClientInitFailure(t *testing.T) {
 
 // Test 38: GetVolumeInfo client init failure
 func TestGetVolumeInfoClientInitFailure(t *testing.T) {
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
-	_, err := osm_os.GetVolumeInfo(createFailingProvider(), "vol-123")
+	_, err := osm_os.GetVolumeInfo(createFailingProvider(), "vol-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}

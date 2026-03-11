@@ -49,6 +49,7 @@ func TestCreatePortSuccess(t *testing.T) {
 	})
 
 	// env needed by NewNetworkV2
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
@@ -59,7 +60,7 @@ func TestCreatePortSuccess(t *testing.T) {
 	securityGroups := []string{"sg-01"}
 	fixedIPs := []string{}
 
-	port, err := osm_os.CreatePort(provider, "test-port", "net-001", "fa:16:3e:aa:bb:cc", "", securityGroups, fixedIPs)
+	port, err := osm_os.CreatePort(provider, "test-port", "net-001", "fa:16:3e:aa:bb:cc", "", securityGroups, fixedIPs, dstCloud)
 	if err != nil {
 		t.Fatalf("CreatePort returned error: %v", err)
 	}
@@ -97,6 +98,7 @@ func TestCreatePortSuccessWithFixedIP(t *testing.T) {
 	})
 
 	// env needed by NewNetworkV2
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
@@ -107,7 +109,7 @@ func TestCreatePortSuccessWithFixedIP(t *testing.T) {
 	securityGroups := []string{"sg-01"}
 	fixedIPs := []string{"10.0.0.1"}
 
-	port, err := osm_os.CreatePort(provider, "test-port", "net-001", "fa:16:3e:aa:bb:cc", "", securityGroups, fixedIPs)
+	port, err := osm_os.CreatePort(provider, "test-port", "net-001", "fa:16:3e:aa:bb:cc", "", securityGroups, fixedIPs, dstCloud)
 	if err != nil {
 		t.Fatalf("CreatePort returned error: %v", err)
 	}
@@ -128,6 +130,8 @@ func TestCreatePortSuccessWithFixedIP(t *testing.T) {
 
 // Test 3: CreatePort client init failure
 func TestCreatePortClientInitFailure(t *testing.T) {
+
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 
 	provider := &gophercloud.ProviderClient{}
@@ -135,7 +139,7 @@ func TestCreatePortClientInitFailure(t *testing.T) {
 		return "", gophercloud.ErrEndpointNotFound{}
 	}
 
-	_, err := osm_os.CreatePort(provider, "p1", "net-001", "fa:16:3e:00:00:00", "", nil, nil)
+	_, err := osm_os.CreatePort(provider, "p1", "net-001", "fa:16:3e:00:00:00", "", nil, nil, dstCloud)
 	if err == nil {
 		t.Fatalf("expected error but got nil")
 	}
@@ -155,9 +159,10 @@ func TestCreatePortCreateError(t *testing.T) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
 
-	_, err := osm_os.CreatePort(provider, "bad", "net-001", "fa:16:3e:bb:cc:dd", "", nil, nil)
+	_, err := osm_os.CreatePort(provider, "bad", "net-001", "fa:16:3e:bb:cc:dd", "", nil, nil, dstCloud)
 	if err == nil {
 		t.Fatalf("expected Create error but got none")
 	}
@@ -185,13 +190,15 @@ func TestGetNetworkByIDSuccess(t *testing.T) {
 		}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	network, err := osm_os.GetNetwork(provider, "net-uuid-123")
+	network, err := osm_os.GetNetwork(provider, "net-uuid-123", dstCloud)
 	if err != nil {
 		t.Fatalf("GetNetwork returned error: %v", err)
 	}
@@ -227,13 +234,15 @@ func TestGetNetworkByNameSuccess(t *testing.T) {
 		}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	network, err := osm_os.GetNetwork(provider, "my-network")
+	network, err := osm_os.GetNetwork(provider, "my-network", dstCloud)
 	if err != nil {
 		t.Fatalf("GetNetwork returned error: %v", err)
 	}
@@ -257,13 +266,15 @@ func TestGetNetworkNotFound(t *testing.T) {
 		_, _ = w.Write([]byte(`{"networks": []}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	_, err := osm_os.GetNetwork(provider, "nonexistent")
+	_, err := osm_os.GetNetwork(provider, "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -289,13 +300,15 @@ func TestGetNetworkMultipleFound(t *testing.T) {
 		}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	_, err := osm_os.GetNetwork(provider, "dup-name")
+	_, err := osm_os.GetNetwork(provider, "dup-name", dstCloud)
 	if err == nil {
 		t.Fatal("expected error for multiple networks")
 	}
@@ -303,13 +316,16 @@ func TestGetNetworkMultipleFound(t *testing.T) {
 
 // Test 9: GetNetwork client init failure
 func TestGetNetworkClientInitFailure(t *testing.T) {
+
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return "", gophercloud.ErrEndpointNotFound{}
 	}
 
-	_, err := osm_os.GetNetwork(provider, "net-123")
+	_, err := osm_os.GetNetwork(provider, "net-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -337,13 +353,15 @@ func TestGetSubnetIDFromNetworkSuccess(t *testing.T) {
 		}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	subnets, err := osm_os.GetSubnetIDFromNetwork(provider, "net-123")
+	subnets, err := osm_os.GetSubnetIDFromNetwork(provider, "net-123", dstCloud)
 	if err != nil {
 		t.Fatalf("GetSubnetIDFromNetwork returned error: %v", err)
 	}
@@ -373,13 +391,15 @@ func TestGetSubnetIDFromNetworkNoSubnets(t *testing.T) {
 		}`))
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	_, err := osm_os.GetSubnetIDFromNetwork(provider, "net-empty")
+	_, err := osm_os.GetSubnetIDFromNetwork(provider, "net-empty", dstCloud)
 	if err == nil {
 		t.Fatal("expected error for no subnets")
 	}
@@ -394,13 +414,15 @@ func TestGetSubnetIDFromNetworkNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	_, err := osm_os.GetSubnetIDFromNetwork(provider, "nonexistent")
+	_, err := osm_os.GetSubnetIDFromNetwork(provider, "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -408,13 +430,16 @@ func TestGetSubnetIDFromNetworkNotFound(t *testing.T) {
 
 // Test 13: GetSubnetIDFromNetwork client init failure
 func TestGetSubnetIDFromNetworkClientInitFailure(t *testing.T) {
+
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return "", gophercloud.ErrEndpointNotFound{}
 	}
 
-	_, err := osm_os.GetSubnetIDFromNetwork(provider, "net-123")
+	_, err := osm_os.GetSubnetIDFromNetwork(provider, "net-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -440,13 +465,15 @@ func TestDeletePortSuccess(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	err := osm_os.DeletePort(provider, "port-123")
+	err := osm_os.DeletePort(provider, "port-123", dstCloud)
 	if err != nil {
 		t.Fatalf("DeletePort returned error: %v", err)
 	}
@@ -464,13 +491,15 @@ func TestDeletePortNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{TokenID: "dummy"}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return fake.ServiceClient().Endpoint, nil
 	}
 
-	err := osm_os.DeletePort(provider, "nonexistent")
+	err := osm_os.DeletePort(provider, "nonexistent", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
@@ -478,13 +507,16 @@ func TestDeletePortNotFound(t *testing.T) {
 
 // Test 16: DeletePort client init failure
 func TestDeletePortClientInitFailure(t *testing.T) {
+
+	var dstCloud osm_os.DstCloud
 	_ = os.Setenv("OS_REGION_NAME", "RegionOne")
+
 	provider := &gophercloud.ProviderClient{}
 	provider.EndpointLocator = func(_ gophercloud.EndpointOpts) (string, error) {
 		return "", gophercloud.ErrEndpointNotFound{}
 	}
 
-	err := osm_os.DeletePort(provider, "port-123")
+	err := osm_os.DeletePort(provider, "port-123", dstCloud)
 	if err == nil {
 		t.Fatal("expected error but got nil")
 	}
