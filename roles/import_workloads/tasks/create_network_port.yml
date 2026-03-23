@@ -8,7 +8,7 @@
         os_migrate_nics_file_path: "{{ os_migrate_vmw_data_dir }}/{{ vm_name }}/nics.json"
         vm_name: "{{ vm_name }}"
         used_mapped_networks: true
-        security_groups: ["{{ security_groups | default('default') }}"]
+        security_groups: "{{ security_groups | default('default') }}"
         use_fixed_ips: "{{ import_workloads_use_fixed_ips | default(false) | bool }}"
         subnet_uuid: "{{ import_workloads_fixed_ip_subnet_uuid | default('') }}"
       register: ports_uuid
@@ -28,7 +28,7 @@
         os_migrate_nics_file_path: "{{ os_migrate_vmw_data_dir }}/{{ vm_name }}/macs.json"
         vm_name: "{{ vm_name }}"
         used_mapped_networks: false
-        security_groups: ["{{ security_groups | default('default') }}"]
+        security_groups: "{{ security_groups | default('default') }}"
         network_name: "{{ openstack_private_network }}"
         use_fixed_ips: "{{ import_workloads_use_fixed_ips | default(false) | bool }}"
         subnet_uuid: "{{ import_workloads_fixed_ip_subnet_uuid | default('') }}"

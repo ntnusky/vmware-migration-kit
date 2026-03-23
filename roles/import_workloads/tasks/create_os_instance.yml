@@ -74,7 +74,7 @@
         nics: "{{ nics }}"
         volumes: "{{ volumes_list }}"
         boot_volume: "{{ boot_volume_uuid }}"
-        security_groups: ["{{ security_groups }}"]
+        security_groups: "{{ security_groups }}"
         flavor: "{{ flavor_info.flavor.id }}"
         key_name: "{{ ssh_key_name | default('') }}"
         boot_from_cinder: "{{ import_workloads_boot_from_cinder }}"
