@@ -92,3 +92,12 @@ plugins/modules/create_server
 plugins/modules/import_image
 plugins/modules/migrate
 plugins/modules/volume_metadata_info
+plugins/modules/best_match_flavor
+plugins/modules/create_network_port
+plugins/modules/delete_flavor
+plugins/modules/delete_port
+plugins/modules/delete_server
+plugins/modules/delete_volume
+plugins/modules/flavor_info
+plugins/modules/import_flavor
+plugins/modules/volume_info
