@@ -34,12 +34,13 @@ import_workloads_image_metadata:
   - os_type='linux'
   - hw_vif_model='virtio'
   - hw_scsi_model='virtio-scsi'
-  - hw_qemu_guest_agent='True'
+  - hw_qemu_guest_agent='true'
   - hw_disk_bus='scsi'
   - os_distro='rhel'
   - hw_machine_type='q35'
   - hw_firmware_type='uefi'
   - hw_boot_mode='uefi'
+  - os_secure_boot='required'
   - cinder_img_volume_type='rhcs6-gp3'
 
 import_workloads_boot_from_cinder: "{{ boot_from_cinder | default(false) | bool }}"

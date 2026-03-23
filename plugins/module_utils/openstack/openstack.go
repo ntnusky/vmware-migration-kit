@@ -161,6 +161,7 @@ func CreateVolume(provider *gophercloud.ProviderClient, opts VolOpts, setUEFI bo
 			Metadata: map[string]string{
 				"hw_machine_type":  "q35",
 				"hw_firmware_type": "uefi",
+				"os_secure_boot":   "required",
 			},
 		}
 		err = volumes.SetImageMetadata(context.TODO(), client, volume.ID, ImageMetadataOpts).ExtractErr()
